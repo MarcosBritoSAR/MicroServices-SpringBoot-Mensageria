@@ -3,24 +3,21 @@ package com.brito.autentication.web.controller;
 import com.brito.autentication.entities.User;
 import com.brito.autentication.jwt.JwtToken;
 import com.brito.autentication.web.dto.AuthDto;
+import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
+import com.brito.autentication.web.dto.mapper.UserMapper;
+import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import com.brito.autentication.web.exception.ErrorMessage;
 import com.brito.autentication.web.services.TokenService;
+import com.brito.autentication.web.services.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -31,10 +28,12 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
 
     @PostMapping("/token")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> login(@RequestBody AuthDto dto, HttpServletRequest request) {
 
         try {
 
@@ -62,7 +61,21 @@ public class AuthController {
         if (isValid) {
             return ResponseEntity.ok("Token válido");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
     }
+
+
+    @GetMapping("/raiseTheLevel/{id}")
+    public ResponseEntity<UserResponseDtoWithRoles> raiseTheLevelUser(@PathVariable Long id){
+
+        User user = userService.raiseTheLevel(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDtoWithRoles(user));
+
+    }
+
+
+
+
 }
 

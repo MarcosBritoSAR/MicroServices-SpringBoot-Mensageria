@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.web.dto.CreateUserDto;
-import com.brito.autentication.web.dto.UserResponseDto;
+import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
 import com.brito.autentication.web.dto.mapper.UserMapper;
 import com.brito.autentication.web.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -25,39 +25,39 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 @RestController
-public class UserController {
+public class  UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> criarUser(@Valid @RequestBody CreateUserDto dto) {
+    public ResponseEntity<UserResponseDtoDefault> criarUser(@Valid @RequestBody CreateUserDto dto) {
         User user = userService.salvar(userMapper.toUser(dto));
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDto(user));
     }
     
     @GetMapping("/{id}")
     //@PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> pegarUsersPorId(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDtoDefault> pegarUsersPorId(@PathVariable Long id) {
         User user = userService.buscarUserPorId(id);
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDto(user));
     }
 
 
-    //TODO: Remover isso aqui
     @GetMapping
-  //  @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponseDto>> pegarTodosUsers() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDtoDefault>> pegarTodosUsers() {
         List<User> users = userService.buscarUsers();
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toListDto(users));
     }
     
     @PutMapping("/{id}")
     //@PreAuthorize("hasAnyRole('ADMIN','OPERATOR') AND (#id == authentication.principal.id)")
-    public ResponseEntity<UserResponseDto> AtualizarPessoaPorId(@PathVariable Long id,
-            @Valid @RequestBody CreateUserDto dto) {
+    public ResponseEntity<UserResponseDtoDefault> AtualizarPessoaPorId(@PathVariable Long id,
+                                                                       @Valid @RequestBody CreateUserDto dto) {
         User userAtualizado = userService.atualizUser(id, userMapper.toUser(dto));
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDto(userAtualizado));
     }
+
 
 }

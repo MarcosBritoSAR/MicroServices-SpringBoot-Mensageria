@@ -5,7 +5,8 @@ import java.util.stream.Collectors;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.web.dto.CreateUserDto;
-import com.brito.autentication.web.dto.UserResponseDto;
+import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
+import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -15,18 +16,32 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class UserMapper {
 
-    private final ModelMapper modelMapper; // Fixed by ensuring ModelMapper is properly registered as a Spring bean in the context.
+    private final ModelMapper modelMapper;
+
+
+    public List<UserResponseDtoDefault> toListDto(List<User> usuarios) {
+        return usuarios.stream().map(user -> toDto(user)).collect(Collectors.toList());
+    }
 
     public User toUser(CreateUserDto dto) {
         return modelMapper.map(dto, User.class);
     }
 
-    public UserResponseDto toDto(User usuario) {
-        return modelMapper.map(usuario, UserResponseDto.class);
+
+    //UR Default
+
+    public UserResponseDtoDefault toDto(User usuario) {
+        return modelMapper.map(usuario, UserResponseDtoDefault.class);
     }
 
-    public List<UserResponseDto> toListDto(List<User> usuarios) {
-        return usuarios.stream().map(user -> toDto(user)).collect(Collectors.toList());
+    //UR Roles
+    public UserResponseDtoWithRoles toDtoWithRoles(User usuario) {
+        return modelMapper.map(usuario, UserResponseDtoWithRoles.class);
+    }
+
+    //UR CPF
+    public UserResponseDtoDefault toDtoWithCpf(User usuario) {
+        return modelMapper.map(usuario, UserResponseDtoDefault.class);
     }
 
 }

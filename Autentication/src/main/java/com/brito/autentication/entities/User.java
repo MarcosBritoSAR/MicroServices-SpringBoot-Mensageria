@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,12 @@ public class User implements UserDetails {
 
     @NotBlank
     @Column(name = "username", unique = true)
-    private String user;
+    private String username;
+
+    @NotBlank
+    @Column(name = "cpf", unique = true)
+    private String cpf;
+
 
     @Column(name = "password")
     @Size(min = 6)
@@ -36,6 +42,11 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+
+    public boolean addRole(Role role){
+        return this.roles.add(role);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,23 +68,23 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.user;
+        return this.username;
     }
 
     public User(String username, String password) {
-        this.user = username;
+        this.username = username;
         this.password = password;
     }
 
     public User(String username, String password, Set<Role> roles) {
-        this.user = username;
+        this.username = username;
         this.password = password;
         this.roles = roles;
     }
 
     public User(Long id, String username, String password) {
         this.id = id;
-        this.user = username;
+        this.username = username;
         this.password = password;
     }
 
