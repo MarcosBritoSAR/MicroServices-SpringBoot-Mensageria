@@ -9,6 +9,7 @@ import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import com.brito.autentication.web.exception.ErrorMessage;
 import com.brito.autentication.web.services.TokenService;
 import com.brito.autentication.web.services.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
