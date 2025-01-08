@@ -30,6 +30,7 @@ public class UserService {
     private final RoleRepository roleRepositorio;
     @Transactional
     public User salvar(User user) {
+
         try {
 
             Role role = roleRepositorio.findByRole(RoleTipo.ROLE_OPERATOR).orElse(null);
@@ -38,10 +39,10 @@ public class UserService {
 
                 role = new Role("ROLE_OPERATOR");
                 role = roleRepositorio.save(role);
+
             }
 
-            Set<Role> roles = new HashSet<>(Arrays.asList(role));
-            user.setRoles(roles);
+            user.addRole(role);
 
             String senhaEncriptada = passwordEncoder.encode(user.getPassword());
             user.setPassword(senhaEncriptada);
@@ -73,7 +74,7 @@ public class UserService {
 
         User user = userRepository.findById(id).orElse(null);
 
-        user.setUser (updateUser.getUser());
+        user.setUsername (updateUser.getUsername());
         user.setPassword(updateUser.getPassword());
         return userRepository.save(user);
 
@@ -81,9 +82,27 @@ public class UserService {
 
     @Transactional
     public User buscarUserPorUserName(String user) {
-        return (User) userRepository.findByUser(user).orElseThrow(
+        return (User) userRepository.findByUsername(user).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User %s not found" , user)));
     }
 
 
+    public User raiseTheLevel(Long id) {
+
+        User user = buscarUserPorId(id);
+
+        Role role = roleRepositorio.findByRole(RoleTipo.ROLE_ADMIN).orElse(null);
+
+        if (role == null) {
+
+            role = new Role("ROLE_ADMIN");
+            role = roleRepositorio.save(role);
+
+        }
+
+        user.addRole(role);
+
+        return userRepository.save(user);
+
+    }
 }

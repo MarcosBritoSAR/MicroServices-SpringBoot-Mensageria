@@ -35,7 +35,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
 
             String username = tokenService.retornaUsername(token);
-            UserDetails userDetails = usuarioRepostorio.findByUser(username).orElseThrow();
+            UserDetails userDetails = usuarioRepostorio.findByUsername(username).orElseThrow();
             var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
