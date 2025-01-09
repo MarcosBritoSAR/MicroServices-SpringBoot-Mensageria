@@ -20,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,6 +44,7 @@ public class AuthController {
 
             return ResponseEntity.ok().body(token);
 
+
         } catch (AuthenticationException e) {
 
             return ResponseEntity
@@ -54,14 +56,16 @@ public class AuthController {
     }
 
     @GetMapping("/validar-token")
-    public ResponseEntity<?> TokenIsValid(@RequestParam String token) {
+    public Mono<ResponseEntity<Void>> tokenIsValid(@RequestParam String token) {
 
-        boolean isValid = tokenService.validarToken(token);
+        return Mono.fromSupplier(() -> {
+            boolean isValid = tokenService.validarToken(token);
 
-        if (isValid) {
-            return ResponseEntity.ok("Token válido");
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
+            if (isValid) {
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        });
     }
 
 

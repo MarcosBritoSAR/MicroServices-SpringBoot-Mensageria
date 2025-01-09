@@ -1,4 +1,5 @@
 package com.brito.autentication.web.services;
+
 import com.auth0.jwt.JWT;
 import com.brito.autentication.entities.User;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+
 import org.springframework.security.core.Authentication;
 
 @Service
@@ -50,15 +52,19 @@ public class TokenService {
         try {
             Algorithm algorimo = Algorithm.HMAC256(SECRET_KEY);
 
-            return JWT.require(algorimo)
+
+            String subject = JWT.require(algorimo)
                     .withIssuer("auth-api")
                     .build()
                     .verify(token)
-                    .getSubject().equals(buscarUsernameNoSecurityContextHolder());
+                    .getSubject();
+
+            return subject != null;
 
         } catch (Exception e) {
 
             return false;
+
         }
 
     }
