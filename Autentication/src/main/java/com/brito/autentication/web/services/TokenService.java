@@ -59,16 +59,12 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
 
-/**
- * TODO: Ao usar o gateway para verificar a validade do token, o SecurityContextHolder vem direto do gateway impossibilitando que eu compare o username do token com o username do contexto
- * Solução: sem solucao
- * Problema Preciso pensar em uma forma de validar o token de forma mais solida
- */
-            return subject.equals(buscarUsernameNoSecurityContextHolder());
+            return subject != null;
 
         } catch (Exception e) {
 
             return false;
+
         }
 
     }
