@@ -43,6 +43,7 @@ public class AuthController {
 
             return ResponseEntity.ok().body(token);
 
+
         } catch (AuthenticationException e) {
 
             return ResponseEntity
@@ -54,7 +55,7 @@ public class AuthController {
     }
 
     @GetMapping("/validar-token")
-    public ResponseEntity<?> TokenIsValid(@RequestParam String token) {
+    public ResponseEntity<?> tokenIsValid(@RequestParam String token) {
 
         boolean isValid = tokenService.validarToken(token);
 
