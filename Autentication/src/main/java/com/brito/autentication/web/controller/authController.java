@@ -2,6 +2,7 @@ package com.brito.autentication.web.controller;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.jwt.JwtToken;
+import com.brito.autentication.rabbitmq.QueueSender;
 import com.brito.autentication.web.dto.AuthDto;
 import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
 import com.brito.autentication.web.dto.mapper.UserMapper;
@@ -31,6 +32,7 @@ public class AuthController {
     private final TokenService tokenService;
     private final UserService userService;
     private final UserMapper userMapper;
+    private final QueueSender sender;
 
 
     @PostMapping("/token")
@@ -42,6 +44,9 @@ public class AuthController {
             var auth = this.authenticationManager.authenticate(username);
             JwtToken token = new JwtToken(tokenService.gerandoToken((User) auth.getPrincipal()));
 
+            //Testing
+            sender.send("Testando o producer");
+
             return ResponseEntity.ok().body(token);
 
 
@@ -51,6 +56,10 @@ public class AuthController {
                     .badRequest()
                     .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, "Invalid Crendentials"));
 
+        }catch (Exception ex){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
         }
 
     }
