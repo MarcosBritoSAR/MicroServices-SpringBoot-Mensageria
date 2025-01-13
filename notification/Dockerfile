@@ -1,3 +1,4 @@
+
 FROM maven:openjdk AS build
 WORKDIR /app
 COPY pom.xml .
