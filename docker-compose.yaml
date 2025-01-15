@@ -1,0 +1,69 @@
+services:
+  auth:
+    image: authenticate
+    container_name: auth
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
+      - POSTGRES_SERVER=postgres
+    depends_on:
+      - eureka
+      - postgres
+    networks:
+      - com.brito
+
+  gateway:
+    image: gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
+    depends_on:
+      - eureka
+    networks:
+      - com.brito
+
+  postgres:
+    image: postgres:14.15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: 1234567
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker-tools/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - com.brito
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - com.brito
+
+  eureka:
+    image: eureka:latest
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - com.brito
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  com.brito:
+    driver: bridge
