@@ -1,6 +1,6 @@
 services:
   auth:
-    image: authenticate
+    image: authentication:lasted
     container_name: auth
     ports:
       - "8081:8081"
@@ -14,7 +14,7 @@ services:
       - com.brito
 
   gateway:
-    image: gateway
+    image: gateway:lasted
     container_name: gateway
     ports:
       - "8080:8080"
