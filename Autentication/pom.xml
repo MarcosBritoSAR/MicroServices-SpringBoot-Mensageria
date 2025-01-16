@@ -95,8 +95,8 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
@@ -162,9 +162,9 @@
 					<artifactId>flyway-maven-plugin</artifactId>
 					<version>10.20.1</version>
 					<configuration>
-						<url>jdbc:postgresql://localhost:5432/auth</url>
-						<user>brito</user>
-						<password>1234567</password>
+						<url>jdbc:postgresql://${env.POSTGRES_SERVER}:5432/auth</url>
+						<user>${env.POSTGRES_USER}</user>
+						<password>${env.POSTGRES_PASSWORD}</password>
 					</configuration>
 				</plugin>
 		</plugins>

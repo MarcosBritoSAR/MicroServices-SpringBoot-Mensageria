@@ -1,27 +1,21 @@
 services:
+
   auth:
-
     image: authentication:latest
-
     container_name: auth
     ports:
       - "8081:8081"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
-      - POSTGRES_SERVER=postgres
     depends_on:
       - eureka
       - postgres
     networks:
       - com.brito
 
+  gateway:
     image: gateway:latest
-
     container_name: gateway
     ports:
       - "8080:8080"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
     depends_on:
       - eureka
     networks:
@@ -61,6 +55,18 @@ services:
       - "8761:8761"
     networks:
       - com.brito
+
+  notification:
+    image: notification:latest
+    container_name: notification
+    ports:
+      - "8085"
+    networks:
+      - com.brito
+    depends_on:
+      - eureka
+      - rabbitmq
+
 
 volumes:
   postgres_data:
