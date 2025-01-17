@@ -4,16 +4,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.brito.autentication.entities.User;
+import com.brito.autentication.web.controller.UserController;
 import com.brito.autentication.web.dto.CreateUserDto;
 import com.brito.autentication.web.dto.UpdateUserDto;
 import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
+import com.brito.autentication.web.dto.responses.UserResponseDtoWithCpf;
 import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
 import lombok.RequiredArgsConstructor;
 
-import static org.modelmapper.Converters.Collection.map;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequiredArgsConstructor
 @Component
@@ -22,8 +25,10 @@ public class UserMapper {
     private final ModelMapper modelMapper;
 
 
-    public List<UserResponseDtoDefault> toListDto(List<User> usuarios) {
-        return usuarios.stream().map(user -> toDto(user)).collect(Collectors.toList());
+    public Page<UserResponseDtoDefault> toPageDto(Page<User> usuarios) {
+        return usuarios.map( user ->
+               toDto(user).add(linkTo(methodOn(UserController.class).pegarUsersPorId(user.getId())).withSelfRel())
+        );
     }
 
     public User toUser(CreateUserDto dto) {
@@ -45,8 +50,8 @@ public class UserMapper {
     }
 
     //UR CPF
-    public UserResponseDtoDefault toDtoWithCpf(User usuario) {
-        return modelMapper.map(usuario, UserResponseDtoDefault.class);
+    public UserResponseDtoWithCpf toDtoWithCpf(User usuario) {
+        return modelMapper.map(usuario, UserResponseDtoWithCpf.class);
     }
 
 }
