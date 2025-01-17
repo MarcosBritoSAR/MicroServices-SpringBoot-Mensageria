@@ -4,13 +4,13 @@ import com.brito.autentication.entities.User;
 import com.brito.autentication.jwt.JwtToken;
 import com.brito.autentication.rabbitmq.QueueSender;
 import com.brito.autentication.web.dto.AuthDto;
-import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
 import com.brito.autentication.web.dto.mapper.UserMapper;
 import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import com.brito.autentication.web.exception.ErrorMessage;
 import com.brito.autentication.web.services.TokenService;
 import com.brito.autentication.web.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpIllegalStateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,19 +44,25 @@ public class AuthController {
             var auth = this.authenticationManager.authenticate(username);
             JwtToken token = new JwtToken(tokenService.gerandoToken((User) auth.getPrincipal()));
 
-            //Testing
-            sender.send("Testando o producer");
+            String message = "Testando o producer";
 
-            return ResponseEntity.ok().body(token);
 
+            if (sender.send(message)) {
+
+                return ResponseEntity.ok().body(token);
+
+            } else {
+
+                return ResponseEntity
+                        .status(HttpStatus.MULTI_STATUS)
+                        .body(token);
+            }
 
         } catch (AuthenticationException e) {
-
             return ResponseEntity
                     .badRequest()
                     .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, "Invalid Crendentials"));
-
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity
                     .badRequest()
                     .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
@@ -79,15 +85,13 @@ public class AuthController {
 
 
     @GetMapping("/raiseTheLevel/{id}")
-    public ResponseEntity<UserResponseDtoWithRoles> raiseTheLevelUser(@PathVariable Long id){
+    public ResponseEntity<UserResponseDtoWithRoles> raiseTheLevelUser(@PathVariable Long id) {
 
         User user = userService.raiseTheLevel(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDtoWithRoles(user));
 
     }
-
-
 
 
 }

@@ -5,12 +5,15 @@ import java.util.stream.Collectors;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.web.dto.CreateUserDto;
+import com.brito.autentication.web.dto.UpdateUserDto;
 import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
 import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+
+import static org.modelmapper.Converters.Collection.map;
 
 @RequiredArgsConstructor
 @Component
@@ -26,6 +29,8 @@ public class UserMapper {
     public User toUser(CreateUserDto dto) {
         return modelMapper.map(dto, User.class);
     }
+
+    public User toUser(UpdateUserDto dto) { return modelMapper.map(dto, User.class); }
 
 
     //UR Default
