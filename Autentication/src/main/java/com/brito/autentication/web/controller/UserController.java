@@ -5,9 +5,9 @@ import com.brito.autentication.web.dto.CreateUserDto;
 import com.brito.autentication.web.dto.UpdateUserDto;
 import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
 import com.brito.autentication.web.dto.mapper.UserMapper;
-import com.brito.autentication.web.dto.responses.UserResponseDtoWithCpf;
 import com.brito.autentication.web.services.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,10 +49,16 @@ public class  UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDtoDefault>> pegarTodosUsers(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "limit", defaultValue = "12") Integer limit
+            @RequestParam(value = "limit", defaultValue = "12") Integer limit,
+            @RequestParam(value = "sort", defaultValue = "asc") String sort
     ) {
-        Page<User> users = userService.buscarUsers(page, limit);
+
+         var direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Page<User> users = userService.buscarUsers(page, limit, Sort.by(direction, "username"));
+
         return ResponseEntity.status(HttpStatus.OK).body(userMapper.toPageDto(users));
+
     }
     
     @PutMapping("/{id}")
