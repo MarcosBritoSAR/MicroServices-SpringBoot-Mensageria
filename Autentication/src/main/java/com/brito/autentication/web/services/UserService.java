@@ -9,21 +9,14 @@ import com.brito.autentication.exceptions.UsernameUniqueViolationException;
 import com.brito.autentication.repositories.RoleRepository;
 import com.brito.autentication.repositories.UserRepostory;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.jmx.export.notification.NotificationPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -67,9 +60,10 @@ public class UserService {
     }
 
     @Transactional
-    public Page<User> buscarUsers(Integer page, Integer limit) {
+    public Page<User> buscarUsers(Integer page, Integer limit, Sort sort) {
 
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, limit, sort);
+
         return userRepository.findAll(pageable);
 
     }
