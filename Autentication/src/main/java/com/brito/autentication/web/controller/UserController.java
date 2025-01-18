@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDtoDefault> pegarUsersPorId(@PathVariable Long id) {
         User user = userService.buscarUserPorId(id);
         var dtoUser = userMapper.toDto(user);
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    //@PreAuthorize("hasAnyRole('ADMIN','OPERATOR') AND (#id == authentication.principal.id)")
+    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR') AND (#id == authentication.principal.id)")
     public ResponseEntity<UserResponseDtoDefault> atualizarPessoaPorId(@PathVariable Long id,
                                                                        @Valid @RequestBody UpdateUserDto dto) {
         User userAtualizado = userService.atualizUser(id, userMapper.toUser(dto));
