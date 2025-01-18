@@ -998,4 +998,5 @@ insert into tb_user (username, password, cpf) values
  ('tgallandro@quantcast.com', 'rE3{T{gN', '51813728992'),
  ('sedgellerrp@berkeley.edu', 'eF5(m7', '59994623206'),
  ('mfairclifferq@forbes.com', 'aW0=g#!I7', '48346285906'),
- ('nfortescuerr@businesswire.com', 'tE8}D>9', '57318329006');
+ ('nfortescuerr@businesswire.com', 'tE8}D>9', '57318329006'),
+ ('admin@security.com', '1234567', '09649664309');
