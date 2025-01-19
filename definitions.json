@@ -1,0 +1,28 @@
+{
+  "rabbit_version": "4.0-management",
+  "users": [
+    {
+      "name": "brito",
+      "password": "1234567",
+      "tags": "administrator"
+    }
+  ],
+  "queues": [
+    {
+      "name": "update-response-email",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "permissions": [
+    {
+      "user": "newuser",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}

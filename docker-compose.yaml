@@ -42,10 +42,16 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: brito
+      RABBITMQ_DEFAULT_PASS: 1234567
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbitmq_management.load_definitions /etc/rabbitmq/definitions.json"
+    volumes:
+      - ./definitions.json:/etc/rabbitmq/definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_log:/var/lib/rabbitmq
     networks:
-      - com.brito
+        - com.brito
+
 
   eureka:
     image: eureka:latest
