@@ -1,0 +1,76 @@
+services:
+
+  auth:
+    image: authentication:latest
+    container_name: auth
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+      - notification
+    networks:
+      - com.brito
+
+  gateway:
+    image: gateway:latest
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka
+    networks:
+      - com.brito
+
+  postgres:
+    image: postgres:14.15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: 1234567
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker-tools/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - com.brito
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: brito
+      RABBITMQ_DEFAULT_PASS: 1234567
+    networks:
+        - com.brito
+
+  eureka:
+    image: eureka:latest
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - com.brito
+
+  notification:
+    image: notification:latest
+    container_name: notification
+    ports:
+      - "8085"
+    networks:
+      - com.brito
+    depends_on:
+      - eureka
+      - rabbitmq
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  com.brito:
+    driver: bridge
