@@ -67,7 +67,6 @@ services:
       - eureka
       - rabbitmq
 
-
 volumes:
   postgres_data:
     driver: local
