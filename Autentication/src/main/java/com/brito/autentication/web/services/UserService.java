@@ -1,6 +1,5 @@
 package com.brito.autentication.web.services;
 
-
 import com.brito.autentication.entities.Role;
 import com.brito.autentication.entities.User;
 import com.brito.autentication.entities.enums.RoleTipo;
@@ -8,6 +7,13 @@ import com.brito.autentication.exceptions.EntityNotFoundException;
 import com.brito.autentication.exceptions.UsernameUniqueViolationException;
 import com.brito.autentication.repositories.RoleRepository;
 import com.brito.autentication.repositories.UserRepostory;
+import com.brito.autentication.web.controller.UserController;
+import com.brito.autentication.web.dto.created.protocol.CreateDTO;
+import com.brito.autentication.web.dto.mapper.UserMapper;
+import com.brito.autentication.web.dto.responses.UserResponseDefaultDTO;
+import com.brito.autentication.web.dto.responses.UserResponseWithCpfDTO;
+import com.brito.autentication.web.dto.responses.protocol.ResponseDTO;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,8 +22,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequiredArgsConstructor
 @Service
@@ -26,15 +38,17 @@ public class UserService {
     private final UserRepostory userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepositorio;
+    private final UserMapper userMapper;
+    private final PagedResourcesAssembler<ResponseDTO> assembler;
 
     @Transactional
-    public User salvar(User user) {
+    public ResponseDTO createUser(CreateDTO dto) {
 
+        User user = userMapper.toUser(dto);
 
         try {
 
             Role role = roleRepositorio.findByRole(RoleTipo.ROLE_OPERATOR).orElse(null);
-
             if (role == null) {
 
                 role = new Role("ROLE_OPERATOR");
@@ -43,59 +57,67 @@ public class UserService {
             }
 
             user.addRole(role);
-
             String senhaEncriptada = passwordEncoder.encode(user.getPassword());
             user.setPassword(senhaEncriptada);
+            user = userRepository.save(user);
+            UserResponseDefaultDTO response = ((UserResponseDefaultDTO) userMapper.toDto(user,
+                    UserResponseDefaultDTO.class))
+                    .add(linkTo(methodOn(UserController.class).createUser(dto)).withSelfRel());
 
-            return userRepository.save(user);
+            return response;
 
         } catch (DataIntegrityViolationException ex) {
             throw new UsernameUniqueViolationException(
                     String.format("Already registered user %s.", user.getUsername()));
         }
-    }
-
-    @Transactional
-    public User buscarUserPorId(Long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("User with id=%s not found.", id)));
-    }
-
-    @Transactional
-    public Page<User> buscarUsers(Integer page, Integer limit, Sort sort) {
-
-        Pageable pageable = PageRequest.of(page, limit, sort);
-
-        return userRepository.findAll(pageable);
 
     }
 
     @Transactional
-    public User atualizUser(Long id, User updateUser) {
+    public ResponseDTO getUserById(Long id) {
 
-        // TODO: Verificar a regra de negócio: O usuário tem permissão para atualizar o
-        // e-mail?
-
-        User user = userRepository.findById(id).orElse(null);
-
-        user.setUsername(updateUser.getUsername());
-        user.setPassword(updateUser.getPassword());
-        return userRepository.save(user);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id=%s not found.", id)));
+        var response = (UserResponseDefaultDTO) userMapper.toDto(user, UserResponseDefaultDTO.class);
+        response.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
+        return response;
 
     }
 
     @Transactional
-    public User buscarUserPorUserName(String user) {
+    public PagedModel<EntityModel<ResponseDTO>> getAll(Integer page, Integer limit, String sort) {
+
+        var direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, limit, direction);
+        Page<User> users = userRepository.findAll(pageable);
+        Page<ResponseDTO> response = userMapper.toPageDto(users);
+        Link link = linkTo(methodOn(UserController.class).getAll(page, limit, sort)).withSelfRel();
+
+        return assembler.toModel(response, link);
+
+    }
+
+    @Transactional
+    public ResponseDTO uptadeById(Long id, User updateUser) {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Entity not found"));
+        user.update(updateUser.getPassword(), updateUser.getUsername());
+        var response = (UserResponseDefaultDTO) userMapper.toDto(user, UserResponseDefaultDTO.class);
+        response.add(linkTo(methodOn(UserController.class).updateById(id, updateUser)).withSelfRel());
+        return response;
+
+    }
+
+    @Transactional
+    public User getUserByUserName(String user) {
         return (User) userRepository.findByUsername(user).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User %s not found", user)));
     }
 
+    public ResponseDTO raiseTheLevel(Long id) {
 
-    public User raiseTheLevel(Long id) {
-
-        User user = buscarUserPorId(id);
-
-        Role role = roleRepositorio.findByRole(RoleTipo.ROLE_ADMIN).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User not found")) );
+        Role role = roleRepositorio.findByRole(RoleTipo.ROLE_ADMIN).orElse((null));
 
         if (role == null) {
 
@@ -105,8 +127,8 @@ public class UserService {
         }
 
         user.addRole(role);
-
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return (ResponseDTO) userMapper.toDto(user, UserResponseWithCpfDTO.class);
 
     }
 }

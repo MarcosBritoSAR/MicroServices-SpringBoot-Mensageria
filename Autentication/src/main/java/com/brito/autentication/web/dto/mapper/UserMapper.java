@@ -2,7 +2,7 @@ package com.brito.autentication.web.dto.mapper;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.web.controller.UserController;
-import com.brito.autentication.web.dto.auth.protocol.AtuthDTO;
+import com.brito.autentication.web.dto.auth.protocol.AuthDTO;
 import com.brito.autentication.web.dto.created.protocol.CreateDTO;
 import com.brito.autentication.web.dto.protocol.DTO;
 import com.brito.autentication.web.dto.responses.UserResponseDefaultDTO;
@@ -32,7 +32,7 @@ public class UserMapper<T> {
         return modelMapper.map(dto, User.class);
     }
 
-    public User toUser(AtuthDTO dto) {
+    public User toUser(AuthDTO dto) {
         return modelMapper.map(dto, User.class);
     }
 

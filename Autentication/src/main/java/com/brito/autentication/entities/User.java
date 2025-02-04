@@ -87,5 +87,10 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public User update(String password, String username){
+        this.password = password;
+        this.username = username;
+        return this;
+    }
 
 }

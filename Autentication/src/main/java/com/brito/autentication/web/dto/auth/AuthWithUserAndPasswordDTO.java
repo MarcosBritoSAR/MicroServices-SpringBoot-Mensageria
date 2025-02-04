@@ -1,6 +1,6 @@
 package com.brito.autentication.web.dto.auth;
 
-import com.brito.autentication.web.dto.auth.protocol.AtuthDTO;
+import com.brito.autentication.web.dto.auth.protocol.AuthDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class AuthWithUserAndPasswordDTO implements AtuthDTO{
+public class AuthWithUserAndPasswordDTO implements AuthDTO{
     @NotBlank
     @Email
     @Size(min = 6)

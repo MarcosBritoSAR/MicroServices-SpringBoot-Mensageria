@@ -2,6 +2,7 @@ package com.brito.autentication.web.exception;
 
 import com.brito.autentication.exceptions.AutenticacaoException;
 import com.brito.autentication.exceptions.EntityNotFoundException;
+import com.brito.autentication.exceptions.SendEmailException;
 import com.brito.autentication.exceptions.UsernameUniqueViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -46,19 +47,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                                 .body(new ErrorMessage(request, HttpStatus.CONFLICT, ex.getMessage()));
         }
 
-        // @ExceptionHandler(MethodArgumentNotValidException.class)
-        // public ResponseEntity<ErrorMessage>
-        // methodArgumentNotValidException(MethodArgumentNotValidException ex,
-        // HttpServletRequest request,
-        // BindingResult result) {
-        // return ResponseEntity
-        // .status(HttpStatus.UNPROCESSABLE_ENTITY)
-        // .contentType(MediaType.APPLICATION_JSON)
-        // .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY,
-        // ex.getMessage()));
-        // }
 
-        //TODO lendario: preciso descobrir o por que isso aqui garante que o contexto do meu teste do UsuarioController seja carregado e que na ausencia os testes falham. 
         @Override
         protected ResponseEntity<Object> handleMethodArgumentNotValid(
                         MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status,
@@ -82,6 +71,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpServletRequest request) {
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+
+        }
+
+        @ExceptionHandler(SendEmailException.class)
+        public ResponseEntity<ErrorMessage> sendEmailException(SendEmailException ex,
+                                                                  HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.MULTI_STATUS)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
 
