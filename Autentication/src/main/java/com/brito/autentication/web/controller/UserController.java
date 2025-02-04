@@ -2,7 +2,7 @@ package com.brito.autentication.web.controller;
 
 import com.brito.autentication.entities.User;
 import com.brito.autentication.web.dto.auth.AuthWithUserAndPasswordDTO;
-import com.brito.autentication.web.dto.created.CreateUserDefaultDTO;
+import com.brito.autentication.web.dto.created.protocol.CreateDTO;
 import com.brito.autentication.web.dto.responses.UserResponseDefaultDTO;
 import com.brito.autentication.web.dto.responses.protocol.ResponseDTO;
 import com.brito.autentication.web.dto.mapper.UserMapper;
@@ -31,21 +31,23 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final PagedResourcesAssembler<UserResponseDefaultDTO> assembler;
+    private final PagedResourcesAssembler<ResponseDTO> assembler;
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> createUser(@Valid @RequestBody CreateUserDefaultDTO dto) {
+    public ResponseEntity<ResponseDTO> createUser(@Valid @RequestBody CreateDTO dto) {
+
         User user = userService.salvar(userMapper.toUser(dto));
-        var dtoUser = userMapper.toDto(user);
+        var dtoUser = (UserResponseDefaultDTO) userMapper.toDto(user, UserResponseDefaultDTO.class);
         dtoUser.add(linkTo(methodOn(UserController.class).createUser(dto)).withSelfRel());
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoUser);
+        
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResponseDTO> getUserById(@PathVariable Long id) {
         User user = userService.buscarUserPorId(id);
-        var dtoUser = userMapper.toDto(user);
+        var dtoUser = (UserResponseDefaultDTO) userMapper.toDto(user, UserResponseDefaultDTO.class);
         dtoUser.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
         return ResponseEntity.status(HttpStatus.OK).body(dtoUser);
     }
@@ -76,7 +78,7 @@ public class UserController {
     public ResponseEntity<ResponseDTO> updateById(@PathVariable Long id,
                                                                        @Valid @RequestBody AuthWithUserAndPasswordDTO dto) {
         User userAtualizado = userService.atualizUser(id, userMapper.toUser(dto));
-        var dtoUser = userMapper.toDto(userAtualizado);
+        var dtoUser = (UserResponseDefaultDTO) userMapper.toDto(userAtualizado, UserResponseDefaultDTO.class);
         dtoUser.add(linkTo(methodOn(UserController.class).updateById(id, dto)).withSelfRel());
         return ResponseEntity.status(HttpStatus.OK).body(dtoUser);
     }

@@ -5,7 +5,7 @@ import com.brito.autentication.jwt.JwtToken;
 import com.brito.autentication.rabbitmq.QueueSender;
 import com.brito.autentication.web.dto.auth.AuthWithUserAndPasswordDTO;
 import com.brito.autentication.web.dto.mapper.UserMapper;
-import com.brito.autentication.web.dto.responses.UserResponseWithRolesDTO;
+import com.brito.autentication.web.dto.responses.UserResponseWithCpfDTO;
 import com.brito.autentication.web.dto.responses.protocol.ResponseDTO;
 import com.brito.autentication.web.exception.ErrorMessage;
 import com.brito.autentication.web.services.TokenService;
@@ -89,7 +89,7 @@ public class AuthController {
 
         User user = userService.raiseTheLevel(id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDtoWithRoles(user));
+        return ResponseEntity.status(HttpStatus.OK).body((ResponseDTO) userMapper.toDto(user, UserResponseWithCpfDTO.class));
 
     }
 
