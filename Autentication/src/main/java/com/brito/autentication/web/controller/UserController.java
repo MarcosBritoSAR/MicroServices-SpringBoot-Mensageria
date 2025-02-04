@@ -1,12 +1,12 @@
 package com.brito.autentication.web.controller;
 
 import com.brito.autentication.entities.User;
-import com.brito.autentication.web.dto.CreateUserDto;
-import com.brito.autentication.web.dto.UpdateUserDto;
-import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
+import com.brito.autentication.web.dto.auth.AuthWithUserAndPasswordDTO;
+import com.brito.autentication.web.dto.created.CreateUserDefaultDTO;
+import com.brito.autentication.web.dto.responses.UserResponseDefaultDTO;
+import com.brito.autentication.web.dto.responses.protocol.ResponseDTO;
 import com.brito.autentication.web.dto.mapper.UserMapper;
 import com.brito.autentication.web.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -25,35 +25,35 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/v2")
 @RestController
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final PagedResourcesAssembler<UserResponseDtoDefault> assembler;
+    private final PagedResourcesAssembler<UserResponseDefaultDTO> assembler;
 
     @PostMapping
-    public ResponseEntity<UserResponseDtoDefault> criarUser(@Valid @RequestBody CreateUserDto dto) {
+    public ResponseEntity<ResponseDTO> createUser(@Valid @RequestBody CreateUserDefaultDTO dto) {
         User user = userService.salvar(userMapper.toUser(dto));
         var dtoUser = userMapper.toDto(user);
-        dtoUser.add(linkTo(methodOn(UserController.class).criarUser(dto)).withSelfRel());
+        dtoUser.add(linkTo(methodOn(UserController.class).createUser(dto)).withSelfRel());
         return ResponseEntity.status(HttpStatus.CREATED).body(dtoUser);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDtoDefault> pegarUsersPorId(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> getUserById(@PathVariable Long id) {
         User user = userService.buscarUserPorId(id);
         var dtoUser = userMapper.toDto(user);
-        dtoUser.add(linkTo(methodOn(UserController.class).pegarUsersPorId(id)).withSelfRel());
+        dtoUser.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
         return ResponseEntity.status(HttpStatus.OK).body(dtoUser);
     }
 
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PagedModel<EntityModel<UserResponseDtoDefault>>> pegarTodosUsers(
+    public ResponseEntity<PagedModel<EntityModel<ResponseDTO>>> getAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "limit", defaultValue = "12") Integer limit,
             @RequestParam(value = "sort", defaultValue = "asc") String sort
@@ -63,9 +63,9 @@ public class UserController {
 
         Page<User> users = userService.buscarUsers(page, limit, Sort.by(direction, "username"));
 
-        Page<UserResponseDtoDefault> response = userMapper.toPageDto(users);
+        Page<ResponseDTO> response = userMapper.toPageDto(users);
 
-        Link link = linkTo(methodOn(UserController.class).pegarTodosUsers(page, limit, sort)).withSelfRel();
+        Link link = linkTo(methodOn(UserController.class).getAll(page, limit, sort)).withSelfRel();
 
         return ResponseEntity.status(HttpStatus.OK).body(assembler.toModel(response, link));
 
@@ -73,11 +73,11 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','OPERATOR') AND (#id == authentication.principal.id)")
-    public ResponseEntity<UserResponseDtoDefault> atualizarPessoaPorId(@PathVariable Long id,
-                                                                       @Valid @RequestBody UpdateUserDto dto) {
+    public ResponseEntity<ResponseDTO> updateById(@PathVariable Long id,
+                                                                       @Valid @RequestBody AuthWithUserAndPasswordDTO dto) {
         User userAtualizado = userService.atualizUser(id, userMapper.toUser(dto));
         var dtoUser = userMapper.toDto(userAtualizado);
-        dtoUser.add(linkTo(methodOn(UserController.class).atualizarPessoaPorId(id, dto)).withSelfRel());
+        dtoUser.add(linkTo(methodOn(UserController.class).updateById(id, dto)).withSelfRel());
         return ResponseEntity.status(HttpStatus.OK).body(dtoUser);
     }
 

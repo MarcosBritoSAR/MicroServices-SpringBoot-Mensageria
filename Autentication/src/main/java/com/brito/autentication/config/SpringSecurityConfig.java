@@ -1,7 +1,7 @@
 package com.brito.autentication.config;
 
 import com.brito.autentication.jwt.SecurityFilter;
-import com.brito.autentication.web.dto.responses.UserResponseDtoDefault;
+import com.brito.autentication.web.dto.responses.UserResponseDefaultDTO;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.brito.autentication.web.dto;
+package com.brito.autentication.web.dto.created;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.br.CPF;
 
+import com.brito.autentication.web.dto.created.protocol.CreateDTO;
+
 @Data
-public class CreateUserDto {
+public class CreateUserDefaultDTO implements CreateDTO{
 
     @NotBlank
     @Size(min = 5)
@@ -22,7 +24,7 @@ public class CreateUserDto {
     @CPF
     private String cpf;
 
-    public CreateUserDto(String username, String password) {
+    public CreateUserDefaultDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

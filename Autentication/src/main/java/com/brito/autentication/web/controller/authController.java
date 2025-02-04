@@ -3,9 +3,10 @@ package com.brito.autentication.web.controller;
 import com.brito.autentication.entities.User;
 import com.brito.autentication.jwt.JwtToken;
 import com.brito.autentication.rabbitmq.QueueSender;
-import com.brito.autentication.web.dto.AuthDto;
+import com.brito.autentication.web.dto.auth.AuthWithUserAndPasswordDTO;
 import com.brito.autentication.web.dto.mapper.UserMapper;
-import com.brito.autentication.web.dto.responses.UserResponseDtoWithRoles;
+import com.brito.autentication.web.dto.responses.UserResponseWithRolesDTO;
+import com.brito.autentication.web.dto.responses.protocol.ResponseDTO;
 import com.brito.autentication.web.exception.ErrorMessage;
 import com.brito.autentication.web.services.TokenService;
 import com.brito.autentication.web.services.UserService;
@@ -23,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v2/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -34,7 +35,7 @@ public class AuthController {
 
 
     @PostMapping("/token")
-    public ResponseEntity<?> login(@RequestBody AuthDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> generateToken(@RequestBody AuthWithUserAndPasswordDTO dto, HttpServletRequest request) {
 
         try {
 
@@ -68,7 +69,7 @@ public class AuthController {
 
     }
 
-    @GetMapping("/validar-token")
+    @GetMapping("/token-isvalid")
     public Mono<ResponseEntity<Void>> tokenIsValid(@RequestParam String token) {
 
         return Mono.fromSupplier(() -> {
@@ -81,9 +82,10 @@ public class AuthController {
         });
     }
 
+    //TODO: Alter this design
 
     @GetMapping("/raiseTheLevel/{id}")
-    public ResponseEntity<UserResponseDtoWithRoles> raiseTheLevelUser(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> raiseTheLevelUser(@PathVariable Long id) {
 
         User user = userService.raiseTheLevel(id);
 

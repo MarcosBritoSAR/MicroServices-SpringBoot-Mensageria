@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Menssageria-MS.iml" filepath="$PROJECT_DIR$/.idea/Menssageria-MS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/autentication/autentication.iml" filepath="$PROJECT_DIR$/autentication/autentication.iml" />
     </modules>
   </component>
 </project>
